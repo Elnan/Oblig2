@@ -41,8 +41,14 @@ public class DobbeltLenketListe<T> implements Liste<T> {
     }
 
     public DobbeltLenketListe(T[] a) {
-        throw new UnsupportedOperationException();
+        if (a.length == 0) throw new NullPointerException("Tabellen a er null!");
+
+
+
+
+
     }
+
 
     public Liste<T> subliste(int fra, int til) {
         throw new UnsupportedOperationException();
@@ -50,13 +56,21 @@ public class DobbeltLenketListe<T> implements Liste<T> {
 
     @Override
     public int antall() {
-        throw new UnsupportedOperationException();
+
+        Node current = hode;
+        int teller = 0;
+        while (current != null) {
+            teller++;
+            current = current.neste;
+        }
+        return teller;
     }
 
     @Override
     public boolean tom() {
-        throw new UnsupportedOperationException();
+        return antall() == 0;
     }
+
 
     @Override
     public boolean leggInn(T verdi) {
