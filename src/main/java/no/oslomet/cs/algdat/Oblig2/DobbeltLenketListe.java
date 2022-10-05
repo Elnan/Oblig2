@@ -6,6 +6,7 @@ package no.oslomet.cs.algdat.Oblig2;
 
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.Objects;
 
 
 public class DobbeltLenketListe<T> implements Liste<T> {
@@ -37,14 +38,47 @@ public class DobbeltLenketListe<T> implements Liste<T> {
     private int endringer;         // antall endringer i listen
 
     public DobbeltLenketListe() {
-        throw new UnsupportedOperationException();
+
     }
 
     public DobbeltLenketListe(T[] a) {
-        if (a.length == 0) throw new NullPointerException("Tabellen a er null!");
+        if (a == null) throw new NullPointerException("Tabellen a er null!");
+
+        Node<T> forrigeNode = null;
+        boolean foersteElement = true;
+        endringer = 0;
 
 
+        for (T verdi : a) {
+            if (verdi == null) {
+                continue;
+            }
+            Node<T> node = new Node<>(verdi);
+            if (foersteElement) {
+                hode = node;
+                foersteElement = false;
+            }
+            if (forrigeNode != null) {
+                node.forrige = forrigeNode;
+                forrigeNode.neste = node;
+            }
+            forrigeNode = node;
+        }
 
+        int teller = 0;
+        if (hode != null) {
+            Node<T> node = hode;
+
+            do {
+                teller++;
+                node = node.neste;
+
+            } while (node != null);
+
+
+            hale = node;
+        }
+        antall = teller;
 
 
     }
@@ -57,7 +91,7 @@ public class DobbeltLenketListe<T> implements Liste<T> {
     @Override
     public int antall() {
 
-        Node current = hode;
+        Node<T> current = hode;
         int teller = 0;
         while (current != null) {
             teller++;
@@ -74,7 +108,19 @@ public class DobbeltLenketListe<T> implements Liste<T> {
 
     @Override
     public boolean leggInn(T verdi) {
-        throw new UnsupportedOperationException();
+        Objects.requireNonNull(verdi);
+        if (hale == null) {
+            hode = new Node<>(verdi);
+            hale = hode;
+        } else {
+            hale.neste = new Node<>(verdi);
+            hale.neste.forrige = hale;
+            hale = hale.neste;
+        }
+        antall++;
+        endringer++;
+
+        return true;
     }
 
     @Override
@@ -119,11 +165,38 @@ public class DobbeltLenketListe<T> implements Liste<T> {
 
     @Override
     public String toString() {
-        throw new UnsupportedOperationException();
+        StringBuilder builder = new StringBuilder("[");
+        if (hode != null) {
+            Node<T> node = hode;
+
+            do {
+                builder.append(node.verdi);
+                if (node.neste != null) {
+                    builder.append(",");
+                }
+            } while (node.neste != null);
+        }
+        builder.append("]");
+
+        return builder.toString();
     }
 
     public String omvendtString() {
-        throw new UnsupportedOperationException();
+        StringBuilder builder = new StringBuilder("[");
+        if (hale != null) {
+            Node<T> node = hale;
+
+            do {
+                builder.append(node.verdi);
+                if (node.forrige != null) {
+                    builder.append(",");
+                }
+            } while (node.forrige != null);
+
+        }
+        builder.append("]");
+
+        return builder.toString();
     }
 
     @Override
