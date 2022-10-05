@@ -71,12 +71,11 @@ public class DobbeltLenketListe<T> implements Liste<T> {
 
             do {
                 teller++;
+                hale = node;
                 node = node.neste;
 
             } while (node != null);
 
-
-            hale = node;
         }
         antall = teller;
 
@@ -85,7 +84,37 @@ public class DobbeltLenketListe<T> implements Liste<T> {
 
 
     public Liste<T> subliste(int fra, int til) {
-        throw new UnsupportedOperationException();
+
+        fratilKontroll(antall, fra, til);
+        DobbeltLenketListe<T> nyListe = new DobbeltLenketListe<>();
+        Node<T> node = finnNode(fra);
+
+                int teller = 0;
+        for (int i = fra; i<til; i++) {
+            if (node != null) {
+                nyListe.leggInn(node.verdi);
+                node = node.neste;
+                teller++;
+            }
+        }
+        nyListe.antall = teller;
+        nyListe.endringer = 0;
+        return nyListe;
+    }
+
+    //Se nærmere på oppgaveteksten. Gir ikke mening
+    private void fratilKontroll(int antall, int fra, int til) {
+
+        if (fra < 0 || fra > antall || til > antall || til < 0) {
+            throw new IndexOutOfBoundsException("Intervallet du oppga er utenfor 0 -> " + antall + " eller at fra > til");
+        }
+        if (fra > til) {
+            throw new IllegalArgumentException();
+        }
+
+        //I oppgave 3b ber du om en IndexOutOfBoundsException istedenfor en
+        // ArrayIndexOutOfBoundsException, men det eksisterer jo fra før? Skjønner ikke hva du vil.
+
     }
 
     @Override
@@ -109,18 +138,37 @@ public class DobbeltLenketListe<T> implements Liste<T> {
     @Override
     public boolean leggInn(T verdi) {
         Objects.requireNonNull(verdi);
+        Node<T> node = new Node<>(verdi);
         if (hale == null) {
-            hode = new Node<>(verdi);
-            hale = hode;
+            hode = hale = node;
         } else {
-            hale.neste = new Node<>(verdi);
-            hale.neste.forrige = hale;
-            hale = hale.neste;
+            hale.neste = node;
+            node.forrige = hale;
+            hale = node;
         }
         antall++;
         endringer++;
 
         return true;
+    }
+
+    private Node<T> finnNode(int index) {
+
+        Node<T> node;
+
+        if (index <= antall / 2) {
+            node = hode;
+            for (int i = 0; i < index; i++) {
+                node = node.neste;
+            }
+
+        } else {
+            node = hale;
+            for (int i = antall; i > index+1; i--) {
+                node = node.forrige;
+            }
+        }
+            return node;
     }
 
     @Override
@@ -135,7 +183,8 @@ public class DobbeltLenketListe<T> implements Liste<T> {
 
     @Override
     public T hent(int indeks) {
-        throw new UnsupportedOperationException();
+        indeksKontroll(indeks, false);
+        return finnNode(indeks).verdi;
     }
 
     @Override
@@ -145,7 +194,14 @@ public class DobbeltLenketListe<T> implements Liste<T> {
 
     @Override
     public T oppdater(int indeks, T nyverdi) {
-        throw new UnsupportedOperationException();
+        indeksKontroll(indeks, false);
+        Objects.requireNonNull(nyverdi);
+        endringer++;
+        Node<T> node = finnNode(indeks);
+        T gammelverdi = node.verdi;
+        node.verdi = nyverdi;
+
+        return gammelverdi;
     }
 
     @Override
@@ -172,9 +228,10 @@ public class DobbeltLenketListe<T> implements Liste<T> {
             do {
                 builder.append(node.verdi);
                 if (node.neste != null) {
-                    builder.append(",");
+                    builder.append(", ");
                 }
-            } while (node.neste != null);
+                node = node.neste;
+            } while (node != null);
         }
         builder.append("]");
 
@@ -189,9 +246,10 @@ public class DobbeltLenketListe<T> implements Liste<T> {
             do {
                 builder.append(node.verdi);
                 if (node.forrige != null) {
-                    builder.append(",");
+                    builder.append(", ");
                 }
-            } while (node.forrige != null);
+                node = node.forrige;
+            } while (node != null);
 
         }
         builder.append("]");
